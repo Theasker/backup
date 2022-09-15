@@ -41,22 +41,24 @@ function dispatch {
 
 function lastbackup {
     # Backup de ayer
-    YESTERDAY="$DESTBASE/$DOMAIN/$(date -d yesterday +%Y-%m-%d)/"
+    #YESTERDAY="$DESTBASE/$DOMAIN/$(date -d yesterday +%Y-%m-%d)/"
+    # Backup anterior
+    LASTBACKUP="$DESTBASE/$DOMAIN/$(ls -trq $DESTBASE/$DOMAIN | tail -n1)"
+    echo "LASTBACKUP: $LASTBACKUP"
     # Donde guardamos el backup de hoy
     DEST="$DESTBASE/$DOMAIN/$(date +%Y-%m-%d)"
 }
 
 function backup {
     # Use yesterday's backup as the incremental base if it exists
-    if [ -d "$YESTERDAY" ]
+    if [ -d "$LASTBACKUP" ]
     then
         # Hard Links option
-	    OPTS="--link-dest $YESTERDAY"
+	    OPTS="--link-dest $LASTBACKUP"
         echo "DEST: '$DEST'"
-        echo "YESTERDAY: $YESTERDAY"
+        echo "LASTBACKUP: $LASTBACKUP"
         echo "OPTS: $OPTS"
-        
-        rsync -azv -e "ssh -p $PORT" --link-dest $YESTERDAY $SOURCE $DEST
+        rsync -azv -e "ssh -p $PORT" --link-dest $LASTBACKUP $SOURCE $DEST
     else
         rsync -azv -e "ssh -p $PORT" $SOURCE $DEST
     fi

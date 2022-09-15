@@ -1,7 +1,3 @@
 #!/bin/bash
-myArray=("cat" "dog" "mouse" "frog")
-echo $myArray
 
-#for str in ${myArray[@]}; do
-#  echo $str
-#done
+date -d "$1-1 days" +"%Y-%m-%d"
