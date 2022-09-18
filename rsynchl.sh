@@ -13,11 +13,11 @@
 
 
 function initVars {
-    # The source path to backup. Can be local or remote.
-    #SOURCE=ubuntu@laflordearagon.es:/home/ubuntu/temp/
+    # Hay que configurar las variables SOURCESFILE y DESTBASE
     SOURCESFILE="$PWD/backups.config"
-    # Where to store the incremental backups
+    # Aqui almacenamos los backups
     DESTBASE="$PWD/backups"
+    # ================================================
     mkdir -p $DESTBASE
     LOGSDIR="$DESTBASE/logs"
     mkdir -p $LOGSDIR
@@ -36,13 +36,12 @@ function dispatch {
             SOURCE="root@$DOMAIN:$DIR"
             # Creo el directorio de destino según el dominio de origen
             TARGET=$DESTBASE/$DOMAIN$PORT
-            LOGSDIR="$DESTBASE/logs/$DOMAIN$PORT"
             mkdir -p $TARGET
+            LOGSDIR="$DESTBASE/logs/$DOMAIN$PORT"
+            mkdir -p $LOGSDIR
             lastbackup
             backup
         fi
-
-        
     done < $SOURCESFILE
 }
 
@@ -59,15 +58,18 @@ function lastbackup {
 
 function backup {
     # Use yesterday's backup as the incremental base if it exists
+    echo "Begin backup of $SOURCE in $PORT port ..."
     if [ -d "$LASTBACKUP" ]
     then
         # Hard Links option
 	    OPTS="--link-dest $LASTBACKUP"
+        echo "Incremental backup ..."
         rsync -azvv -e "ssh -p $PORT" --link-dest $LASTBACKUP $SOURCE $DEST >> $LOGSFILE
     else
         rsync -azvv -e "ssh -p $PORT" $SOURCE $DEST >> $LOGSFILE
     fi
-    echo "===================================="
+    echo "Backup of of $SOURCE in $PORT port finished!"
+    echo "============================================"
 }
 
 initVars
