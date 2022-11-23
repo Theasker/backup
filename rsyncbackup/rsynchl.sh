@@ -7,15 +7,16 @@
 # date: 20220915
 # usage:    Create external file with the source directories
 #           bash ScriptBackup.sh
-# notes: Configure the initVars function and init de variables
+# notes: 
+#    Configure the initVars function and init de variables
+#    Fill the config file with the source to backup
 # bash_version: 5.1.16(1)-release
 #==============================================================================
 
-
 function initVars {
-    # Hay que configurar las variables SOURCESFILE y DESTBASE
+    # Variables SOURCESFILE y DESTBASE
     SOURCESFILE="$PWD/backups.config"
-    # Aqui almacenamos los backups
+    # Backup target
     DESTBASE="$PWD/backups"
     # ================================================
     mkdir -p $DESTBASE
@@ -24,20 +25,20 @@ function initVars {
 }
 
 function dispatch {
-    # Recorremos el fichero línea a línea
+    # Read the config file with the domains, folders and ports.
     while read -r line
     do
-        # Compruebo que la línea de configuración contiene "#"
+        # Jump line with #
         if [[ $line != *"#"* ]]; then
-            stringarray=($line) # Convierto la variable en un array
+            stringarray=($line) # Line to array
             DOMAIN=${stringarray[0]}
             PORT=${stringarray[1]}
             DIR=${stringarray[2]}
             SOURCE="root@$DOMAIN:$DIR"
-            # Creo el directorio de destino según el dominio de origen
-            TARGET=$DESTBASE/$DOMAIN$PORT
+            # Make target directory
+            TARGET=$DESTBASE/$DOMAIN-$PORT
             mkdir -p $TARGET
-            LOGSDIR="$DESTBASE/logs/$DOMAIN$PORT"
+            LOGSDIR="$DESTBASE/logs/$DOMAIN-$PORT"
             mkdir -p $LOGSDIR
             lastbackup
             backup
@@ -46,30 +47,36 @@ function dispatch {
 }
 
 function lastbackup {
-    # Backup de ayer
+    # Yesterday Backup
     #YESTERDAY="$DESTBASE/$DOMAIN/$(date -d yesterday +%Y-%m-%d)/"
-    # Backup anterior
+    # Back Backup
     #LASTBACKUP="$DESTBASE/$DOMAIN/$(ls -trq $DESTBASE/$DOMAIN | tail -n1)"
+    # Find the last backup
     LASTBACKUP="$TARGET/$(ls -trq $TARGET | tail -n1)"
-    # Donde guardamos el backup de hoy
+    echo $LASTBACKUP
+    # Today backup
     DEST="$TARGET/$(date +%Y-%m-%d)"
     LOGSFILE="$LOGSDIR/$(date +%Y-%m-%d).log"
 }
 
 function backup {
     # Use yesterday's backup as the incremental base if it exists
-    echo "Begin backup of $SOURCE in $PORT port ..."
-    if [ -d "$LASTBACKUP" ]
-    then
+    printf "<--- Begin backup of $SOURCE (port: $PORT) $(date +%Y-%m-%d) --->\n"
+    printf "\n<--- Begin backup of $SOURCE (port: $PORT) $(date +%Y-%m-%d) --->\n" >> $LOGSFILE
+    if [ -d "$LASTBACKUP" ] # If exists
+    then # $LASTBACKUP exists
         # Hard Links option
 	    OPTS="--link-dest $LASTBACKUP"
-        echo "Incremental backup ..."
-        rsync -azvv -e "ssh -p $PORT" --link-dest $LASTBACKUP $SOURCE $DEST >> $LOGSFILE
-    else
-        rsync -azvv -e "ssh -p $PORT" $SOURCE $DEST >> $LOGSFILE
+        printf "Incremental backup en ...\n"
+        #rsync -azv -e "ssh -p $PORT" --link-dest $LASTBACKUP $SOURCE $DEST >> $LOGSFILE
+        rsync -azv -e "ssh -p $PORT" --link-dest $LASTBACKUP $SOURCE $DEST
+    else # $LASTBACKUP not exists
+        #rsync -azv -e "ssh -p $PORT" $SOURCE $DEST >> $LOGSFILE
+        #rsync -azv -e "ssh -p $PORT" $SOURCE $DEST
+        echo "No existe"
     fi
-    echo "Backup of of $SOURCE in $PORT port finished!"
-    echo "============================================"
+    printf "<--- END Backup of $SOURCE (port: $PORT) --->\n\n"
+    printf "<--- END backup of $SOURCE (port: $PORT) --->\n\n" >> $LOGSFILE
 }
 
 initVars
