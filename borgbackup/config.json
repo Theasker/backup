@@ -1,0 +1,25 @@
+{
+	"config": {
+		"target": "$PWD/backups",
+		"repository": "ssh://root@podereuropeo.duckdns.org:22/home/ubuntu/borgbackups",
+		"sshfsmount": "/mnt/sshfs"
+	},
+	"backups": [
+		{
+			"domain": "laflordearagon.es",
+			"port": "22",
+			"folders": [
+				"/home/ubuntu/.ssh",
+				"/root/.ssh"
+			]
+		},
+		{
+			"domain": "podereuropeo.duckdns.org",
+			"port": "22",
+			"folders": [
+				"/home/ubuntu/.ssh",
+				"/root/.ssh"
+			]
+		}
+	]
+}

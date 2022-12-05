@@ -1,0 +1,34 @@
+{
+	"config": {
+		"target": "$PWD/backups"
+	},
+	"backups": [
+		{
+			"Domain": "laflordearagon.es",
+			"Port": "22",
+			"Folders": [
+				"/home/ubuntu/temp",
+				"/home/ubuntu/.ssh",
+				"/root/.ssh"
+			]
+		},
+		{
+			"Domain": "podereuropeo.duckdns.org",
+			"Port": "22",
+			"Folders": [
+				"/home/ubuntu/temp",
+				"/home/ubuntu/.ssh",
+				"/root/.ssh"
+			]
+		},
+		{
+			"Domain": "theaskervps.duckdns.org",
+			"Port": "22",
+			"Folders": [
+				"/home/ubuntu/temp",
+				"/home/ubuntu/.ssh",
+				"/root/.ssh"
+			]
+		}
+	]
+}

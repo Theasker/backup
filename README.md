@@ -1,1 +1,3 @@
-Varios scrips dedicados a realizar backups desatendidos y con poca configuración.
+# Scripts for backups 
+
+Various backup scripts with rsync and borg backup
